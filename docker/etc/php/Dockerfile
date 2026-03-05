@@ -61,9 +61,9 @@ RUN usermod -u 1000 www-data
 # Install supervisor and cron
 RUN apt update && apt install supervisor cron -y
 
-# Setup cron jobs
+# Setup cron jobs (Caminho corrigido para contexto /)
 RUN touch /var/log/cron.log
-COPY cron-jobs /etc/cron.d/cron-jobs
+COPY docker/etc/php/cron-jobs /etc/cron.d/cron-jobs
 
 # Give execution rights on the cron job
 RUN chmod 0644 /etc/cron.d/cron-jobs
@@ -74,7 +74,16 @@ RUN crontab /etc/cron.d/cron-jobs
 # Supervisor logs directory
 RUN mkdir -p /var/log/supervisor
 
-# Supervisor config file
-COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# --- PASSO A PASSO 2: Cópia do Código e Permissões ---
+
+# Copia todo o projeto para dentro do container
+COPY . /var/www/html
+
+# Supervisor config file (Caminho corrigido para contexto /)
+COPY docker/etc/php/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Ajusta permissões de escrita para o MapOS
+RUN chown -R www-data:www-data /var/www/html/assets/ \
+    && chmod -R 775 /var/www/html/assets/
 
 CMD ["/usr/bin/supervisord"]
