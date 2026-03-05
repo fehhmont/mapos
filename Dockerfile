@@ -1,4 +1,5 @@
-FROM php:8.2-apache
+# Alterado para 8.4 para satisfazer o composer.json
+FROM php:8.4-apache
 
 # 1. Instala extensões PHP e dependências do sistema
 COPY --from=ghcr.io/mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
@@ -9,11 +10,11 @@ RUN apt update && apt upgrade -y \
     && install-php-extensions mysqli pdo_mysql gd zip bz2 calendar exif gettext opcache xsl intl imap sockets \
     && a2enmod rewrite
 
-# 2. Instala o Composer (Necessário para a pasta vendor)
+# 2. Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 3. Configura o Apache para ler do diretório correto
-ENV APACHE_DOCUMENT_ROOT /var/www/html
+# 3. Configura o Apache (Corrigido para formato ENV key=value)
+ENV APACHE_DOCUMENT_ROOT=/var/www/html
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
@@ -24,11 +25,11 @@ RUN chmod 0644 /etc/cron.d/cron-jobs && crontab /etc/cron.d/cron-jobs
 # 5. Copia o Código do MapOS
 COPY . /var/www/html
 
-# 6. Executa o Composer Install (Resolve o erro do autoload)
+# 6. Executa o Composer Install (Agora com PHP compatível)
 WORKDIR /var/www/html
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# 7. Ajusta Permissões (Crítico para rodar e para o Composer)
+# 7. Ajusta Permissões
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/assets \
     && chmod -R 775 /var/www/html/application/config
