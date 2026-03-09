@@ -88,13 +88,16 @@ if (! function_exists('getAmount')) {
 if (! function_exists('printSafeHtml')) {
     function printSafeHtml(string $html): string
     {
-        static $purifier = null;
+        $config = HTMLPurifier_Config::createDefault();
+    
+    // LINHA ADICIONADA: Redireciona o cache para a pasta segura de cache do MapOS
+    $cachePath = APPPATH . 'cache/htmlpurifier';
+    if (!is_dir($cachePath)) {
+        mkdir($cachePath, 0777, true);
+    }
+    $config->set('Cache.SerializerPath', $cachePath);
 
-        if ($purifier === null) {
-            $config = HTMLPurifier_Config::createDefault();
-            $purifier = new HTMLPurifier($config);
-        }
-
-        return $purifier->purify($html);
+    $purifier = new HTMLPurifier($config);
+    return $purifier->purify($html);
     }
 }

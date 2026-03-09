@@ -1,6 +1,7 @@
 <?php if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
+
 class Mapos extends MY_Controller
 {
     public function __construct()
@@ -425,6 +426,12 @@ class Mapos extends MY_Controller
         $this->form_validation->set_rules('control_datatable', 'Controle de Visualização em DataTables', 'required|trim');
         $this->form_validation->set_rules('os_status_list[]', 'Controle de visualização de OS', 'required|trim', ['required' => 'Selecione ao menos uma das opções!']);
         $this->form_validation->set_rules('control_2vias', 'Controle Impressão 2 Vias', 'required|trim');
+        
+        // --- REGRAS DA ASSINATURA INJETADAS ---
+        $this->form_validation->set_rules('usar_assinatura', 'Sistema de assinaturas de OS', 'required|trim');
+        $this->form_validation->set_rules('status_assinatura', 'Status após assinatura do cliente', 'required|trim');
+        // --------------------------------------
+
         $this->form_validation->set_rules('pix_key', 'Chave Pix', 'trim|valid_pix_key', [
             'valid_pix_key' => 'Chave Pix inválida!',
         ]);
@@ -432,7 +439,7 @@ class Mapos extends MY_Controller
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert">' . validation_errors() . '</div>' : false);
         } else {
-            // Edição do .env
+            // Edição do .env (Mantendo sua lógica original)
             $dataDotEnv = [
                 'IMPRIMIR_ANEXOS' => $this->input->post('imprmirAnexos'),
                 'PAYMENT_GATEWAYS_EFI_PRODUCTION' => $this->input->post('PAYMENT_GATEWAYS_EFI_PRODUCTION'),
@@ -462,7 +469,6 @@ class Mapos extends MY_Controller
             if (!$this->editDontEnv($dataDotEnv)) {
                 $this->data['custom_error'] = '<div class="alert">Falha ao editar o .env</div>';
             }
-            // FIM Edição do .env
 
             $data = [
                 'app_name' => $this->input->post('app_name'),
@@ -479,12 +485,18 @@ class Mapos extends MY_Controller
                 'pix_key' => $this->input->post('pix_key'),
                 'os_status_list' => json_encode($this->input->post('os_status_list')),
                 'control_2vias' => $this->input->post('control_2vias'),
+                
+                // --- CAMPOS DA ASSINATURA INJETADOS ---
+                'usar_assinatura' => $this->input->post('usar_assinatura'),
+                'status_assinatura' => $this->input->post('status_assinatura'),
+                // --------------------------------------
             ];
+            
             if ($this->mapos_model->saveConfiguracao($data) == true) {
                 $this->session->set_flashdata('success', 'Configurações do sistema atualizadas com sucesso!');
                 redirect(site_url('mapos/configurar'));
             } else {
-                $this->data['custom_error'] = '<div class="alert">Ocorreu um errro.</div>';
+                $this->data['custom_error'] = '<div class="alert">Ocorreu um erro ao salvar as configurações.</div>';
             }
         }
 

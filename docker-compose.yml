@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    container_name: mapos-app-local
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./assets/arquivos:/var/www/html/assets/arquivos
+      - ./assets/anexos:/var/www/html/assets/anexos
+    environment:
+      - BASE_URL=http://localhost:8080
+      - DB_HOSTNAME=db
+      - DB_USERNAME=mapos_user
+      - DB_PASSWORD=mapos_senha
+      - DB_DATABASE=mapos_db
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: mapos-db-local
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=mapos_db
+      - MYSQL_USER=mapos_user
+      - MYSQL_PASSWORD=mapos_senha
+      - MYSQL_ROOT_PASSWORD=root_senha
+    volumes:
+      - ./mapos_data:/var/lib/mysql

@@ -128,7 +128,6 @@ class Mine extends CI_Controller
                 }
             }
         }
-        $this->load->view('conecte/token_digita');
     }
 
     public function verifyTokenSenha()
@@ -538,6 +537,8 @@ class Mine extends CI_Controller
         $this->CI = &get_instance();
         $this->CI->load->database();
 
+        // INJETADO: Verificação de uso de assinatura
+        $data['usar_assinatura'] = $this->CI->db->get_where('configuracoes', ['config' => 'usar_assinatura'])->row_object()->valor;
         $data['pix_key'] = $this->CI->db->get_where('configuracoes', ['config' => 'pix_key'])->row_object()->valor;
         $data['result'] = $this->os_model->getById($this->uri->segment(3));
         $data['produtos'] = $this->os_model->getProdutos($this->uri->segment(3));
@@ -645,6 +646,11 @@ class Mine extends CI_Controller
         $this->data['custom_error'] = '';
         $this->load->model('mapos_model');
         $this->load->model('os_model');
+        $this->CI = &get_instance();
+        $this->CI->load->database();
+
+        // INJETADO: Verificação de uso de assinatura para impressão
+        $data['usar_assinatura'] = $this->CI->db->get_where('configuracoes', ['config' => 'usar_assinatura'])->row_object()->valor;
         $data['result'] = $this->os_model->getById($this->uri->segment(3));
         $data['produtos'] = $this->os_model->getProdutos($this->uri->segment(3));
         $data['servicos'] = $this->os_model->getServicos($this->uri->segment(3));
@@ -734,12 +740,6 @@ class Mine extends CI_Controller
     public function minha_ordem_de_servico($y = null, $when = null)
     {
         if (($y != null) && (is_numeric($y))) {
-            // Do not forget this number -> 44023
-            // function sending => y = (7653 * ID) + 44023
-            // function recieving => x = (y - 44023) / 7653
-
-            // Example ID = 2 | y = 59329
-
             $y = intval($y);
             $id = ($y - 44023) / 7653;
 
@@ -749,8 +749,7 @@ class Mine extends CI_Controller
             $this->load->model('os_model');
             $data['result'] = $this->os_model->getById($id);
             if ($data['result'] == null) {
-                // Resposta em caso de não encontrar a ordem de serviço
-                //$this->load->view('conecte/login');
+                // Resposta em caso de não encontrar
             } else {
                 $data['produtos'] = $this->os_model->getProdutos($id);
                 $data['servicos'] = $this->os_model->getServicos($id);
@@ -759,8 +758,7 @@ class Mine extends CI_Controller
                 $this->load->view('conecte/minha_os', $data);
             }
         } else {
-            // Resposta em caso de não encontrar a ordem de serviço
-            //$this->load->view('conecte/');
+            // Resposta em caso de não encontrar
         }
     }
 
@@ -840,6 +838,11 @@ class Mine extends CI_Controller
             $this->load->model('mapos_model');
             $this->load->model('os_model');
 
+            $this->CI = &get_instance();
+            $this->CI->load->database();
+            
+            // INJETADO: Configuração de assinatura e aba ativa
+            $this->data['usar_assinatura'] = $this->CI->db->get_where('configuracoes', ['config' => 'usar_assinatura'])->row_object()->valor;
             $this->data['result'] = $this->os_model->getById($id);
             $this->data['produtos'] = $this->os_model->getProdutos($id);
             $this->data['servicos'] = $this->os_model->getServicos($id);
@@ -850,10 +853,13 @@ class Mine extends CI_Controller
                 redirect('mine/painel');
             }
 
+            // INJETADO: Variável tab para controle de navegação
+            $this->data['tab'] = isset($_GET['tab']) ? $_GET['tab'] : 0;
+
             $this->data['output'] = 'conecte/detalhes_os';
             $this->load->view('conecte/template', $this->data);
         } else {
-            echo 'teste';
+            echo 'erro de parâmetro';
         }
     }
 
@@ -1119,6 +1125,3 @@ class Mine extends CI_Controller
     }
 
 }
-
-/* End of file conecte.php */
-/* Location: ./application/controllers/conecte.php */

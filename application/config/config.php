@@ -447,7 +447,10 @@ $config['csrf_token_name'] = $_ENV['APP_CSRF_TOKEN_NAME'] ?? 'MAPOS_TOKEN';
 $config['csrf_cookie_name'] = $_ENV['APP_CSRF_COOKIE_NAME'] ?? 'MAPOS_COOKIE';
 $config['csrf_expire'] = $_ENV['APP_CSRF_EXPIRE'] ?? 7200;
 $config['csrf_regenerate'] = isset($_ENV['APP_CSRF_REGENERATE']) ? filter_var($_ENV['APP_CSRF_REGENERATE'], FILTER_VALIDATE_BOOLEAN) : true;
-$config['csrf_exclude_uris'] = ['api.*+'];
+$config['csrf_exclude_uris'] = ['api.*+'
+    ,'Assinatura/upload_signature',
+    'Assinatura/upload_signature_cliente'
+];
 
 /*
 |--------------------------------------------------------------------------

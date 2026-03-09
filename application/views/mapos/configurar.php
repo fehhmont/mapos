@@ -390,6 +390,35 @@
                                     <span class="help-inline">Gostaria de imprimir os Anexos na impressão A4?</span>
                                 </div>
                             </div>
+                            <!-- Início Bloco Assinatura -->
+                            <div class="span8" style="margin-left: 3em;">
+                                <label for="usar_assinatura" class="control-label">Sistema de assinaturas de OS</label>
+                                <div class="controls">
+                                    <select name="usar_assinatura" id="usar_assinatura">
+                                        <option value="1">Ativar</option>
+                                        <option value="0" <?= $configuration['usar_assinatura'] == '0' ? 'selected' : ''; ?>>Desativar</option>
+                                    </select>
+                                    <span class="help-inline">Ativar ou desativar sistema de assinatura online de OS.</span>
+                                </div>
+                            </div>
+                            <div class="span8" style="margin-left: 3em;">
+                                <label for="status_assinatura" class="control-label">Status pós assinatura do cliente</label>
+                                <div class="controls">
+                                    <select name="status_assinatura" id="status_assinatura">
+                                        <option>Aberto</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Faturado' ? 'selected' : ''; ?>>Faturado</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Negociação' ? 'selected' : ''; ?>>Negociação</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Em Andamento' ? 'selected' : ''; ?>>Em Andamento</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Orçamento' ? 'selected' : ''; ?>>Orçamento</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Finalizado' ? 'selected' : ''; ?>>Finalizado</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Cancelado' ? 'selected' : ''; ?>>Cancelado</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Aguardando Peças' ? 'selected' : ''; ?>>Aguardando Peças</option>
+                                        <option <?= $configuration['status_assinatura'] == 'Aprovado' ? 'selected' : ''; ?>>Aprovado</option>
+                                    </select>
+                                    <span class="help-inline">Pra qual status a OS vai quando o cliente assinar?</span>
+                                </div>
+                            </div>
+                            <!-- Fim Bloco Assinatura -->
                         </div>
                         <div class="form-actions">
                             <div class="span8">
@@ -413,7 +442,7 @@
                             </div>
                         </div>
                         <div class="control-group">
-                            <label for="apiEnabled" class="control-label">URL API</label>
+                            <label for="urlApi" class="control-label">URL API</label>
                             <div class="controls">
                                 <span class="span10" id="urlApi" style="margin-top:7px;"><?= trim($_ENV['APP_BASEURL'], '/') . '/' ?>index.php/api/v1</span>
                             </div>
@@ -511,7 +540,7 @@
         </div>
     </div>
 </div>
-<!-- Modal -->
+<!-- Modal Atualizar Mapos -->
 <div id="modal-confirmaratualiza" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <form action="<?php echo base_url() ?>index.php/clientes/excluir" method="post">
         <div class="modal-header">
@@ -531,7 +560,7 @@
         </div>
     </form>
 </div>
-<!-- Modal -->
+<!-- Modal Atualizar Banco -->
 <div id="modal-confirmabanco" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <form action="<?php echo base_url() ?>index.php/clientes/excluir" method="post">
         <div class="modal-header">
