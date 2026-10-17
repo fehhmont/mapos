@@ -33,3 +33,6 @@ services:
       - MYSQL_ROOT_PASSWORD=root_senha
     volumes:
       - ./mapos_data:/var/lib/mysql
+
+
+      teste
