@@ -48,11 +48,11 @@
 
     <nav id="sidebar">
         <div id="newlog">
-            <div class="icon2">
+            <!-- <div class="icon2">
                 <img src="<?php echo base_url() ?>assets/img/logo-two.png">
-            </div>
+            </div> -->
             <div class="title1">
-                <img src="<?= base_url() ?>assets/img/logo-mapos-branco.png">
+                <img src="<?= base_url() ?>assets/img/prontotechloggo.png">
             </div>
         </div>
         <a href="#" class="visible-phone">

@@ -1,5 +1,50 @@
 <?php $totalServico = 0;
 $totalProdutos = 0; ?>
+
+<!-- Importa os scripts necessários para a assinatura -->
+<script type="text/javascript" src="<?php echo base_url() ?>assets/js/sweetalert2.all.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url() ?>assets/js/signature_pad.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url() ?>assets/js/assinaturas.js"></script>
+
+<!-- Variáveis globais necessárias para o assinaturas.js funcionar -->
+<script>
+    window.base_url = <?php echo json_encode(base_url()); ?>;
+    window.idOs = null; // Será preenchido ao clicar no botão de assinar
+</script>
+
+<style>
+    /* Estilos do Mini Modal de Assinatura */
+    .modal-assinatura {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-assinatura-content {
+        background-color: #fff;
+        padding: 25px 20px;
+        border-radius: 8px;
+        width: 95%;
+        max-width: 550px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+    #assCliente-pad {
+        border: 1px solid #333333;
+        border-radius: 6px;
+        background-color: #fff;
+        width: 100%;
+        max-width: 600px;
+        height: 300px;
+    }
+</style>
+
 <div class="row-fluid" style="margin-top: 0">
     <div class="span12">
         <div class="widget-box">
@@ -9,6 +54,13 @@ $totalProdutos = 0; ?>
                 </span>
                 <h5>Ordem de Serviço</h5>
                 <div class="buttons" style=" padding-left:5px;">
+                    <!-- Botão de Assinatura (Apenas se estiver Aberto) -->
+                    <?php if ($result->status == 'Aberto') { ?>
+                        <button type="button" class="button btn btn-mini btn-warning btn-abrir-assinatura" data-id="<?php echo $result->idOs; ?>" title="Assinar OS">
+                            <span class="button__icon"><i class="bx bx-pencil"></i></span> <span class="button__text">Assinar OS</span>
+                        </button>
+                    <?php } ?>
+                    
                     <a target="_blank" title="Imprimir Relatório" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/mine/imprimirOs/<?php echo $result->idOs; ?>">
                         <span class="button__icon"><i class="bx bx-printer"></i></span> <span class="button__text">Imprimir Relatório</span></a>
                 </div>
@@ -219,8 +271,8 @@ $totalProdutos = 0; ?>
                                     <?php if ($totalProdutos != 0 || $totalServico != 0) {
                                         if ($result->valor_desconto != 0) {
                                             echo "<h4 style='text-align: right'>SUBTOTAL: R$ " . number_format($totalProdutos + $totalServico, 2, ',', '.') . "</h4>";
-                                            echo $result->valor_desconto != 0 ? "<h4 style='text-align: right'>DESCONTO: R$ " . number_format($result->valor_desconto != 0 ? $result->valor_desconto - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') . "</h4>" : "";
-                                            echo "<h4 style='text-align: right'>TOTAL: R$ " . number_format($result->valor_desconto, 2, ',', '.') . "</h4>";
+                                            echo $result->valor_desconto != 0 ? "<h4 style='text-align: right'>DESCONTO: R$ " . number_format($result->valor_desconto != 0 ? $result->valor_desconto : 0.00, 2, ',', '.') . "</h4>" : "";
+                                            echo "<h4 style='text-align: right'>TOTAL: R$ " . number_format($result->valor_total, 2, ',', '.') . "</h4>";
                                         } else {
                                             echo "<h4 style='text-align: right'>TOTAL: R$ " . number_format($totalProdutos + $totalServico, 2, ',', '.') . "</h4>";
                                         }
@@ -238,6 +290,27 @@ $totalProdutos = 0; ?>
                                 <?php } ?>
                             </thead>
                         </table>
+
+                        <!-- SEÇÃO DE EXIBIÇÃO DA ASSINATURA -->
+                        <?php if (isset($result->assClienteImg) && $result->assClienteImg != null) { ?>
+                            <table class="table table-condensed" style="margin-top: 30px; border-top: 0px;">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: center; border-top: 0px;">
+                                            <img src="<?php echo $result->assClienteImg; ?>" alt="Assinatura do Cliente" style="max-width: 400px; max-height: 150px;">
+                                            <div style="width: 400px; border-top: 1px solid #333; margin: 10px auto 5px auto;"></div>
+                                            <strong>Assinatura do Cliente - <?php echo $result->nome; ?></strong><br>
+                                            <span style="font-size: 12px; color: #555;">
+                                                Assinado em: <?php echo date('d/m/Y H:i:s', strtotime($result->assClienteData)); ?>
+                                                <?php if($result->assClienteIp) echo ' | IP: ' . $result->assClienteIp; ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        <?php } ?>
+                        <!-- FIM DA SEÇÃO DE ASSINATURA -->
+
                     </div>
                 </div>
             </div>
@@ -263,6 +336,27 @@ $totalProdutos = 0; ?>
         <a href="" id-imagem="" class="btn btn-inverse" id="download">Download</a>
     </div>
 </div>
+
+<!-- Mini Modal de Assinatura usando os IDs nativos do assinaturas.js -->
+<div id="modalAssinatura" class="modal-assinatura">
+    <div class="modal-assinatura-content">
+        <h3>Assinar Ordem de Serviço</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Desenhe sua assinatura abaixo:</p>
+        
+        <canvas id="assCliente-pad" width="600" height="300"></canvas>
+        
+        <div style="margin-top: 15px;">
+            <input type="text" name="nomeAssinatura" id="nomeAssinatura" placeholder="Nome e Sobrenome*" style="width: 90%; padding: 6px;" class="text-center">
+        </div>
+        
+        <div style="margin-top: 15px;" class="buttons-a">
+            <button type="button" id="limparAssCliente" class="btn btn-danger">Limpar</button>
+            <button type="button" id="salvarAssCliente" class="btn btn-success">Enviar Assinatura</button>
+            <button type="button" id="fecharAssModal" class="btn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     $(document).ready(function() {
         $(document).on('click', '.anexo', function(event) {
@@ -272,6 +366,37 @@ $totalProdutos = 0; ?>
             var url = '<?php echo base_url(); ?>index.php/os/excluirAnexo/';
             $("#div-visualizar-anexo").html('<img src="' + link + '" alt="">');
             $("#download").attr('href', "<?php echo base_url(); ?>index.php/os/downloadanexo/" + id);
+        });
+
+        // Abrir Mini Modal de Assinatura
+        $(document).on('click', '.btn-abrir-assinatura', function(e) {
+            e.preventDefault();
+            window.idOs = $(this).data('id');
+            $('#modalAssinatura').css('display', 'flex');
+        });
+
+        // Fechar Mini Modal
+        $('#fecharAssModal, #modalAssinatura').on('click', function(e) {
+            if (e.target === this) {
+                $('#modalAssinatura').hide();
+            }
+        });
+
+        // Monitora as requisições AJAX do assinaturas.js para ocultar o modal após o envio
+        $(document).ajaxSuccess(function(event, xhr, settings) {
+            if (xhr.responseText) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success === true && response.message.includes('Assinatura')) {
+                        $('#modalAssinatura').hide(); 
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    }
+                } catch (e) {
+                    // Ignora
+                }
+            }
         });
     });
 </script>

@@ -55,14 +55,14 @@ $parse_email = $this->input->get('e');
                             <div class="card card-cad">
                                 <div class="content">
                                     <div id="newlog">
-                                        <div class="icon2">
-                                            <img src="<?php echo base_url() ?>assets/img/logo-two.png">
-                                        </div>
+                                        <!-- <div class="icon2">
+                                            <img src="<?php echo base_url() ?>assets/img/prontotech.png">
+                                        </div> -->
                                         <div class="title01">
-                                            <img src="<?php echo base_url() ?>assets/img/logo-mapos-branco.png">
+                                            <img src="<?php echo base_url() ?>assets/img/prontotechloggo.png">
                                         </div>
                                     </div>
-                                    <div id="mcell">Versão: <?= $this->config->item('app_version'); ?></div>
+                                    <!-- <div id="mcell">Versão: <?= $this->config->item('app_version'); ?></div> -->
                                     <div class="control-group">
                                         <div class="controls">
                                             <div class="main_input_box">
@@ -86,9 +86,9 @@ $parse_email = $this->input->get('e');
                                     <div class="links-uteis"><a href="<?= site_url('mine/resetarSenha') ?>">
                                             <p style="margin:0px 0 18px">Esqueceu a senha?</p>
                                         </a></div>
-                                    <div class="links-uteis"><a href="https://github.com/RamonSilva20/mapos">
+                                    <!-- <div class="links-uteis"><a href="https://github.com/RamonSilva20/mapos">
                                             <p><?= date('Y'); ?> &copy; Ramon Silva</p>
-                                        </a></div>
+                                        </a></div> -->
                                 </div>
                             </div>
                         </div>
